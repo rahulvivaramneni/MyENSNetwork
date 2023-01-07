@@ -1,3 +1,3 @@
    
-[live demo](https://myENSNetwork.vercel.app/)   
+[Video Demonstration](https://my-ens-network.vercel.app/)   
  
