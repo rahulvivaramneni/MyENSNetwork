@@ -7,8 +7,10 @@ import Jazzicon from "react-jazzicon";
 import { useRecoilState } from "recoil";
 import { contactsAtom } from "../../atoms/contactsAtom";
 import { ethers, utils } from "ethers";
+import axios from "axios";
 
 import IcoX from "./IcoX";
+import { response } from "express";
 
 interface EnsComponentExpandedInterface {
   ENSProfile: IENSProfile;
@@ -24,6 +26,10 @@ export default function ENSProfileCard({
   const [collapsed, setCollapsed] = useState(true);
   const [contacts, setContacts] = useRecoilState(contactsAtom);
   const [deleted, setDeleted] = useState(false);
+  const [regDate, setRegDate] = useState(1688952255);
+  const [expDate, setExpDate] = useState(1625838351);
+  //setRegDate("1688952255")
+  // setExpDate("1625838351")
   const [showQrModal, setShowQrModal] = useState<boolean>(false);
   const [qrModalInfo, setQtModalInfo] = useState<{
     address?: string;
@@ -66,6 +72,44 @@ export default function ENSProfileCard({
     setQtModalInfo(info);
     setShowQrModal(true);
   };
+let response:any;
+let expdate:any;
+  async function getUserQuestions() {
+    try {
+       response = await axios.post(
+        "https://api.thegraph.com/subgraphs/name/ensdomains/ens",
+        {
+          query: `{
+            domains(where:{name:"rahul.eth"})
+            {
+              name
+              labelhash
+              createdAt
+              labelName
+            }
+            
+            registrations(first: 1, where: {id: "0x93af1d2e6382871bfb4ec7d7c2fc4895a7cd11808647036276e114649be13512"}) 
+            {
+              id
+              registrationDate
+              expiryDate
+            }
+          
+          }`
+        });
+        expdate = response.data["data"].registrations;
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+getUserQuestions()
+
+//console.log(typeof expdate)
+const expiDate=new Date(regDate * 1000)
+const regiDate=new Date(expDate * 1000)
+
 
   return (
     <>
@@ -120,6 +164,17 @@ export default function ENSProfileCard({
                     </div>
                   )
               )}
+          </div>
+     
+          <div className="flex w-[428px] items-center gap-1 self-stretch text-base leading-6 text-[rgba(130,130,130,1)]">
+            <p className="uppercase">Registeration Date: </p>
+            
+            <p className="text-[rgba(0,0,10,1)]">{regiDate.toDateString()}</p>
+          </div>
+          <div className="flex w-[428px] items-center gap-1 self-stretch text-base leading-6 text-[rgba(130,130,130,1)]">
+            <p className="uppercase">Expiry Date: </p>
+            
+            <p className="text-[rgba(0,0,10,1)]">{expiDate.toDateString()}</p>
           </div>
           {/* ADDRESSES */}
           <div className="flex w-[428px] items-center gap-1 self-stretch text-base leading-6 text-[rgba(130,130,130,1)]">
